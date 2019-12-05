@@ -81,16 +81,16 @@
 #if defined(MY_RS485_DE_PIN)
 #	define setPinModeDE()	hwPinMode(MY_RS485_DE_PIN,OUTPUT)	
 #if !defined(MY_RS485_DE_INVERSE)
-#	define assertDE() hwDigitalWrite(MY_RS485_DE_PIN, HIGH)
-#	define deassertDE() hwDigitalWrite(MY_RS485_DE_PIN, LOW)
+#define assertDE() hwDigitalWrite(MY_RS485_DE_PIN, HIGH)
+#define deassertDE() hwDigitalWrite(MY_RS485_DE_PIN, LOW)
 #else
-#	define assertDE() 		hwDigitalWrite(MY_RS485_DE_PIN, LOW)
+#define assertDE() hwDigitalWrite(MY_RS485_DE_PIN, LOW)
 #	define deassertDE() 	_dev.flush();\
 							hwDigitalWrite(MY_RS485_DE_PIN, HIGH)
 #endif
 #else
-#	define assertDE()
-#	define deassertDE()
+#define assertDE()
+#define deassertDE()
 #	define setPinModeDE()
 #endif
 
@@ -318,7 +318,7 @@ bool _putBitReadback(bool b)
     if (b)
     {   // 1 is the CAN recessive state
 		hwDigitalWrite(MY_RS485_TX_PIN,HIGH);
-    }
+	}
     else
     {
         // 0 is CAN dominant state
@@ -342,7 +342,7 @@ bool _putBitReadback(bool b)
         rxVal = hwDigitalRead(MY_RS485_RX_PIN);
         if (b != (bool) rxVal)
             return false;
-    }
+		}
 
     // increase start value for next bit to transfer
     canTcnt2ValBitStart += TCNT2_VAL_PER_BIT;
@@ -403,8 +403,8 @@ bool _putchReadback(uint8_t val)
 _putchReadbackError:	// using goto jump for code readability
 	_dev.begin(MY_RS485_BAUD_RATE);  // re-enable USART
 	enableInterrups();
-    return false;
-}
+			return false;
+		}
 #endif  //MY_RS485_COLLISION_DETECTION
 
 // TODO: store stuff into uint16_t to save space?
@@ -435,9 +435,9 @@ bool _writeRS485Packet(const void *data, const uint8_t len)
     {
         if(!_uart_putc(datap[i])) // Text bytes
             return false;
-    }
+	}
 	deassertDE();
-    return true;
+	return true;
 }
 
 

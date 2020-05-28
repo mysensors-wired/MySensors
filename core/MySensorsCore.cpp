@@ -348,6 +348,43 @@ bool send(MyMessage &message, const bool requestEcho)
 #endif
 }
 
+bool sendStream(MyMessage &message, uint8_t * buf, uint8_t length, const bool requestEcho){
+	MyMessage tmpMessage;
+	//uint8_t *buf;
+	//uint8_t length;
+
+	build(tmpMessage,message.getDestination(),message.getSensor(),C_STREAM,message.getType(),requestEcho);
+	tmpMessage.setSender(getNodeId());
+	
+	//buf = (uint8_t*)message.getCustom();
+	//length = message.getLength();
+
+	for(uint8_t i = 0 ; i < length ; i += MAX_PAYLOAD_SIZE){
+		if ( length - i > (uint8_t)MAX_PAYLOAD_SIZE){
+			tmpMessage.set(buf + i , MAX_PAYLOAD_SIZE);
+		}
+		else{
+			tmpMessage.set(buf + i ,length - i);
+		}
+
+#if defined(MY_REGISTRATION_FEATURE) && !defined(MY_GATEWAY_FEATURE)
+		if (_coreConfig.nodeRegistered) {
+			if(!_sendRoute(tmpMessage)){
+				return false;
+			}
+		} else {
+			CORE_DEBUG(PSTR("!MCO:SND:NODE NOT REG\n"));	// node not registered
+			return false;
+		}
+#else		
+		if(!_sendRoute(tmpMessage)){
+			return false;
+		}
+#endif
+	}
+	return true;
+}
+
 bool sendBatteryLevel(const uint8_t value, const bool requestEcho)
 {
 	return _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_BATTERY_LEVEL,

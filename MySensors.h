@@ -226,8 +226,10 @@ MY_DEFAULT_RX_LED_PIN in your sketch instead to enable LEDs
 
 // GATEWAY - CONFIGURATION
 #if defined(MY_SENSOR_NETWORK)
-// We assume that a gateway having a radio also should act as repeater
+// We assume that a gateway having a rf radio also should act as repeater
+#if !defined(MY_RS485)
 #define MY_REPEATER_FEATURE
+#endif
 #endif
 
 #if defined(MY_GATEWAY_ESP8266) || defined(MY_GATEWAY_ESP32)

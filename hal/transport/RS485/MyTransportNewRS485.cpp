@@ -81,9 +81,12 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 #define RS485_SEND_MESSAGE_TRY_CNT 10
 #define RS485_BUS_AQUISITION_TRY_CNT 50
 #define RS485_TRANSMIT_TRY_CNT 50
+#define RS485_RECEIVE_TIMEOUT  5		// 5 ms
 
 #define RS485_BIT_DURATION_US (1.f/ MY_RS485_BAUD_RATE) *1000 *1000
 #define RS485_BUS_AQUISITION_WAIT_US 5* RS485_BIT_DURATION_US * 10   // ~ 5 Bytes * (Bit period * 10 Bit / transaction (start/stop+8bit)) 
+
+
 
 // example
 // RS485_BUS_AQUISITION_WAIT_US for BAUD 38400 = 1,3 ms
@@ -183,6 +186,7 @@ uint8_t _crc_ibutton_update(uint8_t crc, uint8_t data)
 unsigned char _recCommand;
 unsigned char _recStation;
 unsigned char _recSender;
+unsigned long _lastByteReceived;
 
 const unsigned char RS485_HEADER_LENGTH = 4;
 // Receiving header information
@@ -251,6 +255,14 @@ bool _serialProcess()
 
 	while(_dev.available()) {
 		char inch;
+
+		if (millis() - _lastByteReceived > RS485_RECEIVE_TIMEOUT && _recPhase > 0){	// Timeout condition
+			if (_recPos > 0){
+				RS485_DEBUG(PSTR("!RS485:RCV:PTO\n"));
+			}
+			_serialReset();
+		}
+		_lastByteReceived = millis();
 		inch = _dev.read();
 		if (_packet_received == true){
 			return true;

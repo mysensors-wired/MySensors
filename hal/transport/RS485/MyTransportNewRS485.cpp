@@ -213,6 +213,8 @@ bool _packet_received;
 //Reset the state machine and release the data pointer
 void _serialReset()
 {
+	_header[1] = 0;
+	_header[2] = 0;
 	_recPhase = 0;
 }
 
